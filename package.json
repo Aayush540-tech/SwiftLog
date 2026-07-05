@@ -15,6 +15,14 @@
       {
         "command": "logflow.insertLog",
         "title": "LogFlow: Insert Context-Aware Log"
+      },
+      {
+        "command": "logflow.removeAllLogs",
+        "title": "LogFlow: Remove All Logs"
+      },
+      {
+        "command": "logflow.removeSpecificLog",
+        "title": "LogFlow: Remove Specific Log"
       }
     ],
     "keybindings": [
@@ -22,6 +30,18 @@
         "command": "logflow.insertLog",
         "key": "ctrl+alt+l",
         "mac": "cmd+alt+l",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "logflow.removeAllLogs",
+        "key": "ctrl+shift+alt+d",
+        "mac": "cmd+shift+alt+d",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "logflow.removeSpecificLog",
+        "key": "ctrl+shift+alt+x",
+        "mac": "cmd+shift+alt+x",
         "when": "editorTextFocus"
       }
     ],

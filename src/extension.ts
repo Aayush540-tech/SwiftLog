@@ -105,7 +105,15 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(insertLogCommand);
+    const removeAllLogsCommand = vscode.commands.registerCommand('logflow.removeAllLogs', async () => {
+        await removeLogs(false);
+    });
+
+    const removeSpecificLogCommand = vscode.commands.registerCommand('logflow.removeSpecificLog', async () => {
+        await removeLogs(true);
+    });
+
+    context.subscriptions.push(insertLogCommand, removeAllLogsCommand, removeSpecificLogCommand);
 }
 
 /**
@@ -149,6 +157,53 @@ async function injectLogStatement(
         // We use insert to place the log precisely on the line immediately below the cursor
         editBuilder.insert(new vscode.Position(line + 1, 0), `${indentation}${logString}\n`);
     });
+}
+
+async function removeLogs(isSpecific: boolean) {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) { return; }
+
+    let filterString = '';
+    if (isSpecific) {
+        const input = await vscode.window.showInputBox({
+            prompt: 'Enter variable name or Log ID for targeted removal:',
+            placeHolder: 'e.g. activeUser or X7J9'
+        });
+        if (!input) { return; }
+        filterString = input;
+    }
+
+    const document = editor.document;
+    const logFootprint = '// [LogFlow:';
+
+    // --- Pass 1: Collect all matching line numbers (scan top to bottom) ---
+    const linesToDelete: number[] = [];
+    for (let i = 0; i < document.lineCount; i++) {
+        const text = document.lineAt(i).text;
+        if (text.includes(logFootprint)) {
+            if (!isSpecific || text.includes(filterString)) {
+                linesToDelete.push(i);
+            }
+        }
+    }
+
+    if (linesToDelete.length === 0) {
+        vscode.window.setStatusBarMessage('$(info) LogFlow: No matching logs found.', 4000);
+        return;
+    }
+
+    // --- Pass 2: Delete in REVERSE order so line indices don't shift ---
+    await editor.edit(editBuilder => {
+        for (let i = linesToDelete.length - 1; i >= 0; i--) {
+            const lineIndex = linesToDelete[i];
+            editBuilder.delete(document.lineAt(lineIndex).rangeIncludingLineBreak);
+        }
+    });
+
+    vscode.window.setStatusBarMessage(
+        `$(trash) LogFlow: Successfully removed ${linesToDelete.length} log(s).`,
+        4000
+    );
 }
 
 export function deactivate() {
