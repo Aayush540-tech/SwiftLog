@@ -118,6 +118,12 @@ async function injectLogStatement(
     functionName: string,
     isServerContext: boolean
 ) {
+    const config = vscode.workspace.getConfiguration('logflow');
+    const clientEmoji = config.get<string>('clientEmoji') || '🎨';
+    const serverEmoji = config.get<string>('serverEmoji') || '🎒';
+    const clientColor = config.get<string>('clientColor') || '#00adb5';
+    const includeLineNums = config.get<boolean>('includeLineNumbers') || false;
+
     const document = editor.document;
     const currentLineText = document.lineAt(line).text;
 
@@ -125,12 +131,18 @@ async function injectLogStatement(
     const indentation = currentLineText.substring(0, currentLineText.length - currentLineText.trimStart().length);
     const logId = Math.random().toString(36).substring(2, 6).toUpperCase();
 
+    // Map Dynamic Line Numbers
+    let fnContext = `[${functionName}]`;
+    if (includeLineNums) {
+        fnContext = `[${functionName}:L${line + 2}]`; // line is 0-indexed, but inserts below cursor logically
+    }
+
     let logString = '';
 
     if (isServerContext) {
-        logString = `console.log("🎒 [SERVER] [${functionName}] -> ${variableName}:", ${variableName}); // [LogFlow:${logId}]`;
+        logString = `console.log("${serverEmoji} [SERVER] ${fnContext} -> ${variableName}:", ${variableName}); // [LogFlow:${logId}]`;
     } else {
-        logString = `console.log("%c🎨 [CLIENT] [${functionName}] -> ${variableName}:", "color: #00adb5; font-weight: bold;", ${variableName}); // [LogFlow:${logId}]`;
+        logString = `console.log("%c${clientEmoji} [CLIENT] ${fnContext} -> ${variableName}:", "color: ${clientColor}; font-weight: bold;", ${variableName}); // [LogFlow:${logId}]`;
     }
 
     await editor.edit(editBuilder => {

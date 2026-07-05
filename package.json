@@ -24,7 +24,32 @@
         "mac": "cmd+alt+l",
         "when": "editorTextFocus"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "LogFlow",
+      "properties": {
+        "logflow.clientEmoji": {
+          "type": "string",
+          "default": "🎨",
+          "description": "Emoji prefix to use for Client Components"
+        },
+        "logflow.serverEmoji": {
+          "type": "string",
+          "default": "🎒",
+          "description": "Emoji prefix to use for Server Components"
+        },
+        "logflow.clientColor": {
+          "type": "string",
+          "default": "#00adb5",
+          "description": "Hex color code to natively style Context-Aware output in browser DevTools"
+        },
+        "logflow.includeLineNumbers": {
+          "type": "boolean",
+          "default": false,
+          "description": "Dynamically append the active line number directly into the injected log signature"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
