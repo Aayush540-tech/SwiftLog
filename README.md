@@ -10,9 +10,12 @@
 
 - **AST-Powered Precision**: Extracts the exact enclosing function, class method, or arrow function to tell you *exactly* where a log fired.
 - **Next.js Context Awareness**: Natively detects `"use client"` and `"use server"` directives (and intelligently maps App Router paths as a fallback) to adapt log output automatically.
+- **Zero-Highlight Targeting**: Simply place your cursor on a variable (or let LogFlow automatically infer the word under your cursor) to log it—no mouse highlighting required. 
+- **Empty Line Replacements**: Type a variable on an empty line and invoke the shortcut. LogFlow will elegantly replace that entire line with a deeply formatted console log instead of dropping it on the next line!
 - **Premium Formatting**:
   - **Server Components**: `🎒 [SERVER] [FunctionName] -> Variable: {value}`
   - **Client Components**: `%c🎨 [CLIENT] [FunctionName] -> Variable:` with bright CSS styling in DevTools.
+- **Dedicated Stringify Shortcut**: Instantly wrap a variable in `JSON.stringify` to bypass `[object Object]` without opening Settings.
 - **Unique Log Stamping**: Every injected log is stamped with a unique `// [LogFlow:XXXX]` signature for easy identification and safe pruning.
 - **Smart Log Removal**: Remove all LogFlow logs or a specific one from the active file in a single command, without touching your own `console.log`s.
 - **Fully Customizable**: Override emojis, hex colors, and line number display directly from VS Code Settings UI.
@@ -23,12 +26,14 @@
 
 ### Inject a Log
 1. Open any `.ts`, `.tsx`, `.js`, or `.jsx` file.
-2. **Select a variable name** you want to inspect (e.g. `userData`).
+2. **Place your cursor** on a variable name you want to inspect (e.g., `userData`). You DO NOT need to highlight the text! 
+    - *Pro Tip: Type a variable on a blank line, leave your cursor on it, and watch the line transform into a log.*
 3. Fire the keyboard shortcut:
 
 | Shortcut (Mac) | Shortcut (Win/Linux) | Action |
 |---|---|---|
 | `Cmd + Alt + L` | `Ctrl + Alt + L` | **Insert Context-Aware Log** |
+| `Cmd + Alt + J` | `Ctrl + Alt + J` | **Insert JSON.stringify Log** (Overrides Settings) |
 | `Cmd + Shift + Alt + D` | `Ctrl + Shift + Alt + D` | **Remove All LogFlow Logs** |
 | `Cmd + Shift + Alt + X` | `Ctrl + Shift + Alt + X` | **Remove Specific Log** |
 
@@ -74,7 +79,8 @@ LogFlow stamps every injected log with `// [LogFlow:XXXX]`, making cleanup safe 
 
 ## 📦 Roadmap
 
-- [ ] Smart `JSON.stringify(foo, null, 2)` toggle for object logging.
+- [x] Smart `JSON.stringify(foo, null, 2)` override shortcut for robust object logging.
+- [ ] Safe circular reference stringifier support out-of-the-box.
 - [ ] Full-workspace log sweep across all open files.
 - [ ] Log level support: `console.error`, `console.warn`, `console.table`.
 
