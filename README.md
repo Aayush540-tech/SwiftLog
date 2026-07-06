@@ -1,8 +1,8 @@
-# LogFlow 🎒🎨
+# SwiftLog 🎒🎨
 
 > A context-aware, AST-powered log injection extension for VS Code.
 
-**LogFlow** eliminates the friction of manually typing out debugging statements in complex React and Next.js codebases. Using advanced Babel AST parsing, LogFlow precisely analyzes your current execution scope, determines your environment (Client vs. Server), and instantly injects a beautifully formatted, context-aware `console.log` directly below your cursor — or at any line you specify.
+**SwiftLog** eliminates the friction of manually typing out debugging statements in complex React and Next.js codebases. Using advanced Babel AST parsing, SwiftLog precisely analyzes your current execution scope, determines your environment (Client vs. Server), and instantly injects a beautifully formatted, context-aware `console.log` directly below your cursor — or at any line you specify.
 
 ---
 
@@ -10,14 +10,14 @@
 
 - **AST-Powered Precision**: Extracts the exact enclosing function, class method, or arrow function to tell you *exactly* where a log fired.
 - **Next.js Context Awareness**: Natively detects `"use client"` and `"use server"` directives (and intelligently maps App Router paths as a fallback) to adapt log output automatically.
-- **Zero-Highlight Targeting**: Simply place your cursor on a variable (or let LogFlow automatically infer the word under your cursor) to log it—no mouse highlighting required. 
-- **Empty Line Replacements**: Type a variable on an empty line and invoke the shortcut. LogFlow will elegantly replace that entire line with a deeply formatted console log instead of dropping it on the next line!
+- **Zero-Highlight Targeting**: Simply place your cursor on a variable (or let SwiftLog automatically infer the word under your cursor) to log it—no mouse highlighting required. 
+- **Empty Line Replacements**: Type a variable on an empty line and invoke the shortcut. SwiftLog will elegantly replace that entire line with a deeply formatted console log instead of dropping it on the next line!
 - **Premium Formatting**:
   - **Server Components**: `🎒 [SERVER] [FunctionName] -> Variable: {value}`
   - **Client Components**: `%c🎨 [CLIENT] [FunctionName] -> Variable:` with bright CSS styling in DevTools.
 - **Dedicated Stringify Shortcut**: Instantly wrap a variable in `JSON.stringify` to bypass `[object Object]` without opening Settings.
-- **Unique Log Stamping**: Every injected log is stamped with a unique `// [LogFlow:XXXX]` signature for easy identification and safe pruning.
-- **Smart Log Removal**: Remove all LogFlow logs or a specific one from the active file in a single command, without touching your own `console.log`s.
+- **Unique Log Stamping**: Every injected log is stamped with a unique `// [SwiftLog:XXXX]` signature for easy identification and safe pruning.
+- **Smart Log Removal**: Remove all SwiftLog logs or a specific one from the active file in a single command, without touching your own `console.log`s.
 - **Fully Customizable**: Override emojis, hex colors, and line number display directly from VS Code Settings UI.
 
 ---
@@ -34,36 +34,36 @@
 |---|---|---|
 | `Cmd + Alt + L` | `Ctrl + Alt + L` | **Insert Context-Aware Log** |
 | `Cmd + Alt + J` | `Ctrl + Alt + J` | **Insert JSON.stringify Log** (Overrides Settings) |
-| `Cmd + Shift + Alt + D` | `Ctrl + Shift + Alt + D` | **Remove All LogFlow Logs** |
+| `Cmd + Shift + Alt + D` | `Ctrl + Shift + Alt + D` | **Remove All SwiftLog Logs** |
 | `Cmd + Shift + Alt + X` | `Ctrl + Shift + Alt + X` | **Remove Specific Log** |
 
-Alternatively, open the Command Palette (`Cmd+Shift+P`) and search for **"LogFlow"** to see all available commands.
+Alternatively, open the Command Palette (`Cmd+Shift+P`) and search for **"SwiftLog"** to see all available commands.
 
 ---
 
 ## ⚙️ Customization
 
-Go to **VS Code Settings** (`Cmd + ,`) and search for **LogFlow** to customize:
+Go to **VS Code Settings** (`Cmd + ,`) and search for **SwiftLog** to customize:
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `logflow.clientEmoji` | `string` | `🎨` | Emoji prefix for Client Components |
-| `logflow.serverEmoji` | `string` | `🎒` | Emoji prefix for Server Components |
-| `logflow.clientColor` | `string` | `#00adb5` | Hex color for browser DevTools styling |
-| `logflow.includeLineNumbers` | `boolean` | `false` | Append source line number to log signature |
+| `swiftlog.clientEmoji` | `string` | `🎨` | Emoji prefix for Client Components |
+| `swiftlog.serverEmoji` | `string` | `🎒` | Emoji prefix for Server Components |
+| `swiftlog.clientColor` | `string` | `#00adb5` | Hex color for browser DevTools styling |
+| `swiftlog.includeLineNumbers` | `boolean` | `false` | Append source line number to log signature |
 
 ### Example output with `includeLineNumbers: true`:
 ```typescript
-console.log("%c🎨 [CLIENT] [UserProfile:L24] -> username:", "color: #00adb5; font-weight: bold;", username); // [LogFlow:X7J9]
+console.log("%c🎨 [CLIENT] [UserProfile:L24] -> username:", "color: #00adb5; font-weight: bold;", username); // [SwiftLog:X7J9]
 ```
 
 ---
 
 ## 🗑️ Removing Logs
 
-LogFlow stamps every injected log with `// [LogFlow:XXXX]`, making cleanup safe and surgical:
+SwiftLog stamps every injected log with `// [SwiftLog:XXXX]`, making cleanup safe and surgical:
 
-- **Remove All Logs** (`Cmd+Shift+Alt+D`): Wipes every LogFlow-stamped log from the active file instantly.
+- **Remove All Logs** (`Cmd+Shift+Alt+D`): Wipes every SwiftLog-stamped log from the active file instantly.
 - **Remove Specific Log** (`Cmd+Shift+Alt+X`): Prompts you for a variable name or Log ID (e.g. `username` or `X7J9`), and removes only the matching log(s).
 
 ---
@@ -72,7 +72,7 @@ LogFlow stamps every injected log with `// [LogFlow:XXXX]`, making cleanup safe 
 
 - Driven by the standard VS Code `TextEditor` API.
 - employs `@babel/parser` and `@babel/traverse` to scan execution scopes without blocking the IDE thread.
-- Implements fully graceful fallbacks — if your code has unresolved syntax errors mid-refactor, LogFlow still injects logs as expected.
+- Implements fully graceful fallbacks — if your code has unresolved syntax errors mid-refactor, SwiftLog still injects logs as expected.
 - Log deletion uses a **two-pass reverse-order** scan to prevent line-index shifting during bulk deletions.
 
 ---
