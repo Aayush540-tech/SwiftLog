@@ -17,6 +17,10 @@
         "title": "LogFlow: Insert Context-Aware Log"
       },
       {
+        "command": "logflow.insertStringifiedLog",
+        "title": "LogFlow: Insert JSON.stringify Log"
+      },
+      {
         "command": "logflow.removeAllLogs",
         "title": "LogFlow: Remove All Logs"
       },
@@ -30,6 +34,12 @@
         "command": "logflow.insertLog",
         "key": "ctrl+alt+l",
         "mac": "cmd+alt+l",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "logflow.insertStringifiedLog",
+        "key": "ctrl+alt+j",
+        "mac": "cmd+alt+j",
         "when": "editorTextFocus"
       },
       {
@@ -67,6 +77,11 @@
           "type": "boolean",
           "default": false,
           "description": "Dynamically append the active line number directly into the injected log signature"
+        },
+        "logflow.prettyPrint": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, wraps object/array variables in JSON.stringify(value, null, 2) to prevent [object Object] output"
         }
       }
     }

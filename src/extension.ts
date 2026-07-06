@@ -6,7 +6,7 @@ import _traverse from '@babel/traverse';
 const traverse = typeof _traverse === 'function' ? _traverse : (_traverse as any).default;
 
 export function activate(context: vscode.ExtensionContext) {
-    const insertLogCommand = vscode.commands.registerCommand('logflow.insertLog', async () => {
+    const handleInsertLog = async (forceStringify: boolean = false) => {
         const editor = vscode.window.activeTextEditor;
 
         // Failsafe: TextEditor is required
@@ -17,15 +17,25 @@ export function activate(context: vscode.ExtensionContext) {
         const document = editor.document;
         const selection = editor.selection;
 
-        const highlightedText = document.getText(selection).trim();
+        let highlightedText = document.getText(selection).trim();
         const fileUri = document.uri;
         const activeFilePath = fileUri.fsPath;
         const cursorLine = selection.active.line; // VS Code lines are 0-indexed
 
         if (!highlightedText) {
-            vscode.window.setStatusBarMessage('$(warning) LogFlow: Please select a variable to inject a log for', 3000);
+            const wordRange = document.getWordRangeAtPosition(selection.active);
+            if (wordRange) {
+                highlightedText = document.getText(wordRange).trim();
+            }
+        }
+
+        if (!highlightedText) {
+            vscode.window.setStatusBarMessage('$(warning) LogFlow: Please select or place cursor on a variable to inject a log for', 3000);
             return;
         }
+
+        const currentLineTextStr = document.lineAt(cursorLine).text;
+        const isPlaceholderLine = currentLineTextStr.trim() === highlightedText;
 
         const sourceCode = document.getText();
         let functionName = 'Global';
@@ -94,16 +104,19 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             });
 
-            await injectLogStatement(editor, cursorLine, highlightedText, functionName, isServerContext);
+            await injectLogStatement(editor, cursorLine, highlightedText, functionName, isServerContext, forceStringify, isPlaceholderLine);
 
         } catch (error) {
             // -------------------------------------------------------------
             // Error Prevention (Graceful Fallback on syntax errors)
             // -------------------------------------------------------------
             vscode.window.setStatusBarMessage('$(warning) LogFlow: AST parsing failed. Using standard insertion.', 5000);
-            await injectLogStatement(editor, cursorLine, highlightedText, 'Unknown', isServerContext);
+            await injectLogStatement(editor, cursorLine, highlightedText, 'Unknown', isServerContext, forceStringify, isPlaceholderLine);
         }
-    });
+    };
+
+    const insertLogCommand = vscode.commands.registerCommand('logflow.insertLog', () => handleInsertLog(false));
+    const insertStringifiedLogCommand = vscode.commands.registerCommand('logflow.insertStringifiedLog', () => handleInsertLog(true));
 
     const removeAllLogsCommand = vscode.commands.registerCommand('logflow.removeAllLogs', async () => {
         await removeLogs(false);
@@ -113,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
         await removeLogs(true);
     });
 
-    context.subscriptions.push(insertLogCommand, removeAllLogsCommand, removeSpecificLogCommand);
+    context.subscriptions.push(insertLogCommand, insertStringifiedLogCommand, removeAllLogsCommand, removeSpecificLogCommand);
 }
 
 /**
@@ -124,13 +137,16 @@ async function injectLogStatement(
     line: number,
     variableName: string,
     functionName: string,
-    isServerContext: boolean
+    isServerContext: boolean,
+    forceStringify: boolean = false,
+    isPlaceholderLine: boolean = false
 ) {
     const config = vscode.workspace.getConfiguration('logflow');
     const clientEmoji = config.get<string>('clientEmoji') || '🎨';
     const serverEmoji = config.get<string>('serverEmoji') || '🎒';
     const clientColor = config.get<string>('clientColor') || '#00adb5';
     const includeLineNums = config.get<boolean>('includeLineNumbers') || false;
+    const prettyPrint = forceStringify || (config.get<boolean>('prettyPrint') || false);
 
     const document = editor.document;
     const currentLineText = document.lineAt(line).text;
@@ -142,20 +158,31 @@ async function injectLogStatement(
     // Map Dynamic Line Numbers
     let fnContext = `[${functionName}]`;
     if (includeLineNums) {
-        fnContext = `[${functionName}:L${line + 2}]`; // line is 0-indexed, but inserts below cursor logically
+        fnContext = `[${functionName}:L${isPlaceholderLine ? line + 1 : line + 2}]`;
     }
+
+    // Smart Object Stringification: use JSON.stringify when prettyPrint is enabled
+    const valueOutput = prettyPrint
+        ? `JSON.stringify(${variableName}, null, 2)`
+        : variableName;
 
     let logString = '';
 
     if (isServerContext) {
-        logString = `console.log("${serverEmoji} [SERVER] ${fnContext} -> ${variableName}:", ${variableName}); // [LogFlow:${logId}]`;
+        logString = `console.log("${serverEmoji} [SERVER] ${fnContext} -> ${variableName}:", ${valueOutput}); // [LogFlow:${logId}]`;
     } else {
-        logString = `console.log("%c${clientEmoji} [CLIENT] ${fnContext} -> ${variableName}:", "color: ${clientColor}; font-weight: bold;", ${variableName}); // [LogFlow:${logId}]`;
+        logString = `console.log("%c${clientEmoji} [CLIENT] ${fnContext} -> ${variableName}:", "color: ${clientColor}; font-weight: bold;", ${valueOutput}); // [LogFlow:${logId}]`;
     }
 
     await editor.edit(editBuilder => {
-        // We use insert to place the log precisely on the line immediately below the cursor
-        editBuilder.insert(new vscode.Position(line + 1, 0), `${indentation}${logString}\n`);
+        if (isPlaceholderLine) {
+            // Replace the entire placeholder line with the log statement
+            const range = document.lineAt(line).range;
+            editBuilder.replace(range, `${indentation}${logString}`);
+        } else {
+            // Insert precisely on the line immediately below the cursor
+            editBuilder.insert(new vscode.Position(line + 1, 0), `${indentation}${logString}\n`);
+        }
     });
 }
 
