@@ -30,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         if (!highlightedText) {
-            vscode.window.setStatusBarMessage('$(warning) LogFlow: Please select or place cursor on a variable to inject a log for', 3000);
+            vscode.window.setStatusBarMessage('$(warning) SwiftLog: Please select or place cursor on a variable to inject a log for', 3000);
             return;
         }
 
@@ -110,19 +110,19 @@ export function activate(context: vscode.ExtensionContext) {
             // -------------------------------------------------------------
             // Error Prevention (Graceful Fallback on syntax errors)
             // -------------------------------------------------------------
-            vscode.window.setStatusBarMessage('$(warning) LogFlow: AST parsing failed. Using standard insertion.', 5000);
+            vscode.window.setStatusBarMessage('$(warning) SwiftLog: AST parsing failed. Using standard insertion.', 5000);
             await injectLogStatement(editor, cursorLine, highlightedText, 'Unknown', isServerContext, forceStringify, isPlaceholderLine);
         }
     };
 
-    const insertLogCommand = vscode.commands.registerCommand('logflow.insertLog', () => handleInsertLog(false));
-    const insertStringifiedLogCommand = vscode.commands.registerCommand('logflow.insertStringifiedLog', () => handleInsertLog(true));
+    const insertLogCommand = vscode.commands.registerCommand('swiftlog.insertLog', () => handleInsertLog(false));
+    const insertStringifiedLogCommand = vscode.commands.registerCommand('swiftlog.insertStringifiedLog', () => handleInsertLog(true));
 
-    const removeAllLogsCommand = vscode.commands.registerCommand('logflow.removeAllLogs', async () => {
+    const removeAllLogsCommand = vscode.commands.registerCommand('swiftlog.removeAllLogs', async () => {
         await removeLogs(false);
     });
 
-    const removeSpecificLogCommand = vscode.commands.registerCommand('logflow.removeSpecificLog', async () => {
+    const removeSpecificLogCommand = vscode.commands.registerCommand('swiftlog.removeSpecificLog', async () => {
         await removeLogs(true);
     });
 
@@ -141,7 +141,7 @@ async function injectLogStatement(
     forceStringify: boolean = false,
     isPlaceholderLine: boolean = false
 ) {
-    const config = vscode.workspace.getConfiguration('logflow');
+    const config = vscode.workspace.getConfiguration('swiftlog');
     const clientEmoji = config.get<string>('clientEmoji') || '🎨';
     const serverEmoji = config.get<string>('serverEmoji') || '🎒';
     const clientColor = config.get<string>('clientColor') || '#00adb5';
@@ -169,9 +169,9 @@ async function injectLogStatement(
     let logString = '';
 
     if (isServerContext) {
-        logString = `console.log("${serverEmoji} [SERVER] ${fnContext} -> ${variableName}:", ${valueOutput}); // [LogFlow:${logId}]`;
+        logString = `console.log("${serverEmoji} [SERVER] ${fnContext} -> ${variableName}:", ${valueOutput}); // [SwiftLog:${logId}]`;
     } else {
-        logString = `console.log("%c${clientEmoji} [CLIENT] ${fnContext} -> ${variableName}:", "color: ${clientColor}; font-weight: bold;", ${valueOutput}); // [LogFlow:${logId}]`;
+        logString = `console.log("%c${clientEmoji} [CLIENT] ${fnContext} -> ${variableName}:", "color: ${clientColor}; font-weight: bold;", ${valueOutput}); // [SwiftLog:${logId}]`;
     }
 
     await editor.edit(editBuilder => {
@@ -201,7 +201,7 @@ async function removeLogs(isSpecific: boolean) {
     }
 
     const document = editor.document;
-    const logFootprint = '// [LogFlow:';
+    const logFootprint = '// [SwiftLog:';
 
     // --- Pass 1: Collect all matching line numbers (scan top to bottom) ---
     const linesToDelete: number[] = [];
@@ -215,7 +215,7 @@ async function removeLogs(isSpecific: boolean) {
     }
 
     if (linesToDelete.length === 0) {
-        vscode.window.setStatusBarMessage('$(info) LogFlow: No matching logs found.', 4000);
+        vscode.window.setStatusBarMessage('$(info) SwiftLog: No matching logs found.', 4000);
         return;
     }
 
@@ -228,7 +228,7 @@ async function removeLogs(isSpecific: boolean) {
     });
 
     vscode.window.setStatusBarMessage(
-        `$(trash) LogFlow: Successfully removed ${linesToDelete.length} log(s).`,
+        `$(trash) SwiftLog: Successfully removed ${linesToDelete.length} log(s).`,
         4000
     );
 }

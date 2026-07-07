@@ -1,8 +1,15 @@
 {
-  "name": "logflow",
-  "displayName": "LogFlow",
+  "name": "swiftlog",
+  "displayName": "SwiftLog",
+  "publisher": "Aayush540-tech",
   "description": "Context-aware log injection using AST parsing",
-  "version": "0.0.1",
+  "version": "1.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aayush540-tech/SwiftLog"
+  },
+  "icon": "images/SwiftLog.png",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -13,72 +20,72 @@
   "contributes": {
     "commands": [
       {
-        "command": "logflow.insertLog",
-        "title": "LogFlow: Insert Context-Aware Log"
+        "command": "swiftlog.insertLog",
+        "title": "SwiftLog: Insert Context-Aware Log"
       },
       {
-        "command": "logflow.insertStringifiedLog",
-        "title": "LogFlow: Insert JSON.stringify Log"
+        "command": "swiftlog.insertStringifiedLog",
+        "title": "SwiftLog: Insert JSON.stringify Log"
       },
       {
-        "command": "logflow.removeAllLogs",
-        "title": "LogFlow: Remove All Logs"
+        "command": "swiftlog.removeAllLogs",
+        "title": "SwiftLog: Remove All Logs"
       },
       {
-        "command": "logflow.removeSpecificLog",
-        "title": "LogFlow: Remove Specific Log"
+        "command": "swiftlog.removeSpecificLog",
+        "title": "SwiftLog: Remove Specific Log"
       }
     ],
     "keybindings": [
       {
-        "command": "logflow.insertLog",
+        "command": "swiftlog.insertLog",
         "key": "ctrl+alt+l",
         "mac": "cmd+alt+l",
         "when": "editorTextFocus"
       },
       {
-        "command": "logflow.insertStringifiedLog",
+        "command": "swiftlog.insertStringifiedLog",
         "key": "ctrl+alt+j",
         "mac": "cmd+alt+j",
         "when": "editorTextFocus"
       },
       {
-        "command": "logflow.removeAllLogs",
+        "command": "swiftlog.removeAllLogs",
         "key": "ctrl+shift+alt+d",
         "mac": "cmd+shift+alt+d",
         "when": "editorTextFocus"
       },
       {
-        "command": "logflow.removeSpecificLog",
+        "command": "swiftlog.removeSpecificLog",
         "key": "ctrl+shift+alt+x",
         "mac": "cmd+shift+alt+x",
         "when": "editorTextFocus"
       }
     ],
     "configuration": {
-      "title": "LogFlow",
+      "title": "SwiftLog",
       "properties": {
-        "logflow.clientEmoji": {
+        "swiftlog.clientEmoji": {
           "type": "string",
           "default": "🎨",
           "description": "Emoji prefix to use for Client Components"
         },
-        "logflow.serverEmoji": {
+        "swiftlog.serverEmoji": {
           "type": "string",
           "default": "🎒",
           "description": "Emoji prefix to use for Server Components"
         },
-        "logflow.clientColor": {
+        "swiftlog.clientColor": {
           "type": "string",
           "default": "#00adb5",
           "description": "Hex color code to natively style Context-Aware output in browser DevTools"
         },
-        "logflow.includeLineNumbers": {
+        "swiftlog.includeLineNumbers": {
           "type": "boolean",
           "default": false,
           "description": "Dynamically append the active line number directly into the injected log signature"
         },
-        "logflow.prettyPrint": {
+        "swiftlog.prettyPrint": {
           "type": "boolean",
           "default": false,
           "description": "When enabled, wraps object/array variables in JSON.stringify(value, null, 2) to prevent [object Object] output"
