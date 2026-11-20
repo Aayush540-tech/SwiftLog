@@ -34,6 +34,10 @@
       {
         "command": "swiftlog.removeSpecificLog",
         "title": "SwiftLog: Remove Specific Log"
+      },
+      {
+        "command": "swiftlog.insertErrorLog",
+        "title": "SwiftLog: Insert console.error Log"
       }
     ],
     "keybindings": [
@@ -59,6 +63,12 @@
         "command": "swiftlog.removeSpecificLog",
         "key": "ctrl+shift+alt+x",
         "mac": "cmd+shift+alt+x",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "swiftlog.insertErrorLog",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e",
         "when": "editorTextFocus"
       }
     ],

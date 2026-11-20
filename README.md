@@ -34,6 +34,7 @@
 |---|---|---|
 | `Cmd + Alt + L` | `Ctrl + Alt + L` | **Insert Context-Aware Log** |
 | `Cmd + Alt + J` | `Ctrl + Alt + J` | **Insert JSON.stringify Log** (Overrides Settings) |
+| `Cmd + Alt + E` | `Ctrl + Alt + E` | **Insert console.error Log** |
 | `Cmd + Shift + Alt + D` | `Ctrl + Shift + Alt + D` | **Remove All SwiftLog Logs** |
 | `Cmd + Shift + Alt + X` | `Ctrl + Shift + Alt + X` | **Remove Specific Log** |
 

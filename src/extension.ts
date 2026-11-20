@@ -6,7 +6,7 @@ import _traverse from '@babel/traverse';
 const traverse = typeof _traverse === 'function' ? _traverse : (_traverse as any).default;
 
 export function activate(context: vscode.ExtensionContext) {
-    const handleInsertLog = async (forceStringify: boolean = false) => {
+    const handleInsertLog = async (forceStringify: boolean = false, logMethod: string = 'log') => {
         const editor = vscode.window.activeTextEditor;
 
         // Failsafe: TextEditor is required
@@ -104,19 +104,20 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             });
 
-            await injectLogStatement(editor, cursorLine, highlightedText, functionName, isServerContext, forceStringify, isPlaceholderLine);
+            await injectLogStatement(editor, cursorLine, highlightedText, functionName, isServerContext, forceStringify, isPlaceholderLine, logMethod);
 
         } catch (error) {
             // -------------------------------------------------------------
             // Error Prevention (Graceful Fallback on syntax errors)
             // -------------------------------------------------------------
             vscode.window.setStatusBarMessage('$(warning) SwiftLog: AST parsing failed. Using standard insertion.', 5000);
-            await injectLogStatement(editor, cursorLine, highlightedText, 'Unknown', isServerContext, forceStringify, isPlaceholderLine);
+            await injectLogStatement(editor, cursorLine, highlightedText, 'Unknown', isServerContext, forceStringify, isPlaceholderLine, logMethod);
         }
     };
 
     const insertLogCommand = vscode.commands.registerCommand('swiftlog.insertLog', () => handleInsertLog(false));
     const insertStringifiedLogCommand = vscode.commands.registerCommand('swiftlog.insertStringifiedLog', () => handleInsertLog(true));
+    const insertErrorLogCommand = vscode.commands.registerCommand('swiftlog.insertErrorLog', () => handleInsertLog(false, 'error'));
 
     const removeAllLogsCommand = vscode.commands.registerCommand('swiftlog.removeAllLogs', async () => {
         await removeLogs(false);
@@ -126,7 +127,7 @@ export function activate(context: vscode.ExtensionContext) {
         await removeLogs(true);
     });
 
-    context.subscriptions.push(insertLogCommand, insertStringifiedLogCommand, removeAllLogsCommand, removeSpecificLogCommand);
+    context.subscriptions.push(insertLogCommand, insertStringifiedLogCommand, insertErrorLogCommand, removeAllLogsCommand, removeSpecificLogCommand);
 }
 
 /**
@@ -139,7 +140,8 @@ async function injectLogStatement(
     functionName: string,
     isServerContext: boolean,
     forceStringify: boolean = false,
-    isPlaceholderLine: boolean = false
+    isPlaceholderLine: boolean = false,
+    logMethod: string = 'log'
 ) {
     const config = vscode.workspace.getConfiguration('swiftlog');
     const clientEmoji = config.get<string>('clientEmoji') || '🎨';
@@ -169,9 +171,9 @@ async function injectLogStatement(
     let logString = '';
 
     if (isServerContext) {
-        logString = `console.log("${serverEmoji} [SERVER] ${fnContext} -> ${variableName}:", ${valueOutput}); // [SwiftLog:${logId}]`;
+        logString = `console.${logMethod}("${serverEmoji} [SERVER] ${fnContext} -> ${variableName}:", ${valueOutput}); // [SwiftLog:${logId}]`;
     } else {
-        logString = `console.log("%c${clientEmoji} [CLIENT] ${fnContext} -> ${variableName}:", "color: ${clientColor}; font-weight: bold;", ${valueOutput}); // [SwiftLog:${logId}]`;
+        logString = `console.${logMethod}("%c${clientEmoji} [CLIENT] ${fnContext} -> ${variableName}:", "color: ${clientColor}; font-weight: bold;", ${valueOutput}); // [SwiftLog:${logId}]`;
     }
 
     await editor.edit(editBuilder => {
